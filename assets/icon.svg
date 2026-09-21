@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b2330"/>
+      <stop offset="100%" stop-color="#080a0e"/>
+    </linearGradient>
+    <linearGradient id="blockOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb08a"/>
+      <stop offset="45%" stop-color="#ff5b3a"/>
+      <stop offset="100%" stop-color="#a92c17"/>
+    </linearGradient>
+    <linearGradient id="blockBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bdf1ff"/>
+      <stop offset="55%" stop-color="#3ad1ff"/>
+      <stop offset="100%" stop-color="#1477a3"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="2" y="2" width="116" height="116" rx="24" fill="url(#bg)"/>
+  <rect x="2" y="2" width="116" height="116" rx="24" fill="none" stroke="#3a4658" stroke-width="2" opacity="0.6"/>
+
+  <!-- corner reticle ticks -->
+  <rect x="14" y="14" width="12" height="5" rx="1.5" fill="#5a6b82"/>
+  <rect x="14" y="14" width="5" height="12" rx="1.5" fill="#5a6b82"/>
+  <rect x="94" y="14" width="12" height="5" rx="1.5" fill="#5a6b82"/>
+  <rect x="101" y="14" width="5" height="12" rx="1.5" fill="#5a6b82"/>
+  <rect x="14" y="101" width="5" height="12" rx="1.5" fill="#5a6b82"/>
+  <rect x="14" y="108" width="12" height="5" rx="1.5" fill="#5a6b82"/>
+  <rect x="101" y="94" width="5" height="12" rx="1.5" fill="#5a6b82"/>
+  <rect x="94" y="101" width="12" height="5" rx="1.5" fill="#5a6b82"/>
+
+  <!-- blocky voxel crosshair, built from chunky bars with an open center -->
+  <rect x="51" y="16" width="18" height="30" rx="3" fill="url(#blockOrange)"/>
+  <rect x="51" y="74" width="18" height="30" rx="3" fill="url(#blockOrange)"/>
+  <rect x="16" y="51" width="30" height="18" rx="3" fill="url(#blockOrange)"/>
+  <rect x="74" y="51" width="30" height="18" rx="3" fill="url(#blockOrange)"/>
+
+  <!-- center target block -->
+  <rect x="51" y="51" width="18" height="18" rx="4" fill="url(#blockBlue)" transform="rotate(45 60 60)"/>
+  <rect x="56" y="56" width="8" height="8" rx="1.5" fill="#0a0e14" opacity="0.85"/>
+</svg>
