@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>BLOCK WARFARE</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0e14">
 <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icon.png">
@@ -1256,64 +1258,129 @@ function addPerimeterWalls(half,color,height,opts){
   box(t,h,half*2+t,color,half,h/2,0,{rough:o.rough!==undefined?o.rough:.9});
 }
 function buildHouse(){
-  var H=28;
+  var H=36;
   addSpawns(H);
   buildSky(0xbfe3ff,0xffe6c2);
-  buildGround(60,0x8a7a5f,0x7a6a52);
-  box(50,.4,50,0x9c8560,0,.2,0,{collide:false,shadow:false});
+  buildGround(76,0x8a7a5f,0x7a6a52);
+  box(70,.4,70,0x9c8560,0,.2,0,{collide:false,shadow:false});
   addPerimeterWalls(H,0x8a5a3a,2.6,{rough:1});
-  var wallC=0xb5895a, wallC2=0xc99a67, trimC=0x5a3d22;
-  function wall(x,z,w,d,h,c){ box(w,h||3,d,c||wallC,x,(h||3)/2,z); }
-  wall(-15,-15,20,.6,3); wall(-15,15,20,.6,3);
-  wall(-22,0,.6,26,3); wall(0,-22,18,.6,3,wallC2); wall(0,22,18,.6,3,wallC2);
-  wall(13,0,.6,26,3,wallC2);
-  wall(-5,-8,.6,16,2.6,0xc9a876); wall(8,5,16,.6,2.6,0xc9a876);
-  wall(-12,10,.6,12,2.6,0xc9a876); wall(5,-15,12,.6,2.6,0xc9a876);
-  // pitched roof (angled slabs) + chimney
-  box(30,.5,18,0x8a3a2a,-15,7.4,0,{rotZ:.45,collide:false,rough:.8});
-  box(30,.5,18,0x8a3a2a,-15,7.4,0,{rotZ:-.45,collide:false,rough:.8});
-  box(1.4,3,1.4,0x776155,-20,8.6,3,{rough:1});
-  // window frames (trim insets on walls) + door
-  box(1.6,1.4,.1,0x2a2a2a,-22,1.8,-8,{collide:false,shadow:false});
-  box(1.6,1.4,.1,0x2a2a2a,-22,1.8,8,{collide:false,shadow:false});
-  box(1.2,2.2,.15,trimC,-9,1.1,-15,{collide:false,shadow:false});
-  // furniture
-  box(2,1,1,0x6a4a2a,-18,.5,-18); box(1.4,.8,1.4,0x8a5a3a,-10,.4,-10);
-  box(3,.6,1.2,0x3a5a8a,10,.3,10); box(1,1.6,1,0x333,3,.8,-5);
-  box(1,1,3,0x774,18,.5,18);
-  box(1.8,.9,1.8,0x4a3a2a,-2,.45,-20,{rough:1}); // table
-  box(.6,.5,.6,0x3a2a1a,-2.6,.25,-20.6,{rough:1}); box(.6,.5,.6,0x3a2a1a,-1.4,.25,-19.4,{rough:1}); // chairs
-  box(2.4,.15,1.4,0x8a2a2a,10,.08,10,{collide:false,shadow:false}); // rug
-  box(1,2,.4,0x3a2a1a,-1,1,20,{rough:.9}); // mailbox post area
-  box(.6,.1,.6,0x5a4a2a,17,.05,-17,{collide:false,shadow:false}); box(.4,.6,.4,0x2e5a2a,17,.35,-17,{collide:false,rough:1}); // potted plant
+
+  // ---- proper house footprint: x:[-17,17] z:[-15,15], hallway spine at |x|<2 ----
+  var wallC=0xb5895a, wallC2=0xc99a67, trimC=0x5a3d22, wh=2.8, wt=.5;
+  function wseg(x1,x2,z,c){ var w=x2-x1; box(w,wh,wt,c||wallC,(x1+x2)/2,wh/2,z); }
+  function dseg(x,z1,z2,c){ var d=z2-z1; box(wt,wh,d,c||wallC,x,wh/2,(z1+z2)/2); }
+
+  // exterior walls with front/back door gaps (both aligned with the hallway)
+  wseg(-17,-1.2,-15,wallC2); wseg(1.2,17,-15,wallC2);       // south wall, front door gap
+  wseg(-17,-1.2,15,wallC2);  wseg(1.2,17,15,wallC2);        // north wall, back door gap
+  dseg(-17,-15,15,wallC2);                                   // west wall, solid
+  dseg(17,-15,15,wallC2);                                    // east wall, solid
+
+  // living room (west half) separated from hallway by a wall with two doorways
+  dseg(-2,-15,-9.2,trimC); dseg(-2,-6.8,6.8,trimC); dseg(-2,9.2,15,trimC);
+  // kitchen (NE) separated from hallway, one doorway
+  dseg(2,2,6.8,trimC); dseg(2,9.2,15,trimC);
+  // bedroom (SE) separated from hallway, one doorway
+  dseg(2,-15,-9.2,trimC); dseg(2,-6.8,-2,trimC);
+  // wall between kitchen and bedroom, one doorway
+  wseg(2,8.8,2,trimC); wseg(11.2,17,2,trimC);
+
+  // pitched roof over the full footprint + chimney
+  box(36,.5,32,0x8a3a2a,0,wh+2.6,0,{rotZ:.42,collide:false,rough:.8});
+  box(36,.5,32,0x8a3a2a,0,wh+2.6,0,{rotZ:-.42,collide:false,rough:.8});
+  box(1.4,3.4,1.4,0x776155,-11,wh+3.6,9,{rough:1});
+
+  // window frames (decorative insets on the solid side walls) + door frame trim
+  [-10,-2,6].forEach(function(z){ box(.12,1.4,1.8,0x2a2a2a,-17,1.9,z,{collide:false,shadow:false}); });
+  [-10,-2,6].forEach(function(z){ box(.12,1.4,1.8,0x2a2a2a,17,1.9,z,{collide:false,shadow:false}); });
+  box(2.6,.15,.4,trimC,0,2.85,-15,{collide:false,shadow:false});
+  box(2.6,.15,.4,trimC,0,2.85,15,{collide:false,shadow:false});
+
+  // living room furniture
+  box(3.4,.9,1.3,0x3a5a8a,-13,.45,-10,{rough:.8});           // sofa
+  box(3.4,.5,1.3,0x2a4a7a,-13,.9,-10,{collide:false,rough:.8}); // sofa back cushion line
+  box(1.6,.5,1.6,0x222,-13,.25,-4,{rough:.4,metal:.3});       // TV stand
+  box(1.4,1.6,.2,0x0a0a0a,-13,1.3,-4.9,{collide:false,rough:.2,metal:.6}); // TV screen
+  box(2.2,.5,1.2,0x6a4a2a,-8,.25,4,{rough:.8});                // coffee table
+  box(3,.15,2,0x8a2a2a,-13,.08,3,{collide:false,shadow:false}); // rug
+  box(1.4,1.8,.5,0x3a2a1a,-15.5,.9,10,{rough:.9});             // bookshelf
+
+  // kitchen furniture
+  box(6,1,1.1,0xd8d0c0,10,.5,12.5,{rough:.5});                 // counter
+  box(1.2,1.6,1.2,0xcccccc,14.5,.8,12.5,{rough:.3,metal:.5});   // fridge
+  box(2.4,.9,1.6,0x6a4a2a,6,.45,7,{rough:.8});                  // kitchen table
+  box(.6,.5,.6,0x3a2a1a,5.3,.25,6.3,{rough:.8}); box(.6,.5,.6,0x3a2a1a,6.7,.25,7.7,{rough:.8}); // chairs
+
+  // bedroom furniture
+  box(2.2,.6,3.2,0x8a5a3a,13,.3,-10,{rough:.9});                // bed frame
+  box(2,.3,3,0xe8e0d0,13,.7,-10,{collide:false,rough:.9});       // mattress/pillow
+  box(1,1.4,.6,0x3a2a1a,6,.7,-12.5,{rough:.9});                  // dresser
+  box(1,1,.6,0x223,10,.5,-6,{rough:.4,metal:.4});                // small desk
+
+  // ---- yard (outside the house, inside the fence) ----
+  box(2.4,.05,17,0x9a8a70,0,.05,-24,{collide:false,shadow:false}); // garden path to front door
+  box(3.6,1.3,1.8,0x3a5a3a,-24,.65,6,{rough:.8});                   // parked car body
+  box(1.5,.8,1.5,0x1a1a1a,-24,1.35,6,{collide:false,rough:.3});     // car cabin
+  box(1,2,.4,0x3a2a1a,-2,1,-26,{rough:.9});                         // mailbox post
+  box(.7,.4,.5,0x8a2a2a,-2,2,-26,{rough:.7});                       // mailbox box
+  box(5,1,2.4,0x6a5a44,20,.5,-22,{rough:.9});                       // garden shed
+  box(4.4,.4,1.8,0x4a3a2a,20,1.05,-22,{collide:false,rough:.9});    // shed roof strip
+  box(2,.75,1,0x6a4a2a,-20,.4,20,{rough:.9});                       // picnic table
+  for(var yp=0;yp<10;yp++){
+    var yx=(mapRng()-.5)*(H*1.8), yz=(mapRng()-.5)*(H*1.8);
+    if(Math.abs(yx)<20 && Math.abs(yz)<18) continue; // keep clear of the house footprint
+    if(nearAnySpawn(yx,yz)) continue;
+    box(.9+mapRng()*.5,1+mapRng(),.9+mapRng()*.5,mapRng()>0.5?0x2e5a2a:0x5a4a2a,yx,.6,yz,{rough:1});
+  }
   scene.background = new THREE.Color(0xd9c9a0);
 }
 function buildSchool(){
-  var H=30;
+  var H=38;
   addSpawns(H);
   buildSky(0xa9d3ef,0xdfeaf3);
-  buildGround(64,0x93a7c0,0x8a9bb5);
-  box(56,.4,56,0xaebccf,0,.2,0,{collide:false,shadow:false});
+  buildGround(H*2+8,0x93a7c0,0x8a9bb5);
+  box(H*2-4,.4,H*2-4,0xaebccf,0,.2,0,{collide:false,shadow:false});
   addPerimeterWalls(H,0x6a8aab,3,{rough:.9});
   var wc=0x7a9bb5;
-  box(.6,3.4,40,wc,-20,1.7,0); box(.6,3.4,40,wc,20,1.7,0);
-  box(40,3.4,.6,wc,0,1.7,-20); box(40,3.4,.6,wc,0,1.7,20);
-  for(var i=-1;i<=1;i++){ box(.5,3,14,0x8faccf,i*13,1.5,-6); }
-  box(30,.5,.6,0x8faccf,0,3,-6);
-  for(var s=0;s<5;s++){ box(4,.6+s*.4,2,0x99a,0-6+s*1.2, (0.3+s*.2), 12); }
+  // main classroom building
+  box(.6,3.4,44,wc,-24,1.7,-4); box(.6,3.4,44,wc,24,1.7,-4);
+  box(48,3.4,.6,wc,0,1.7,-26); box(48,3.4,.6,wc,0,1.7,18);
+  for(var i=-1;i<=1;i++){ box(.5,3,16,0x8faccf,i*15,1.5,-8); }
+  box(32,.5,.6,0x8faccf,0,3,-8);
+  box(.5,3,20,0x8faccf,0,1.5,4);
+  // covered walkway connecting to the gym wing
+  box(3,.3,14,0x9ab,26,3.1,4,{collide:false,rough:.8});
+  for(var pw=0;pw<5;pw++){ box(.2,3,.2,0x778,26,1.5,-2+pw*3.5,{rough:.6}); }
+  // gym wing (separate building, east side)
+  box(.6,5,20,0x5a7a9a,38,2.5,4); box(.6,5,20,0x5a7a9a,50,2.5,4);
+  box(12,.6,20,0x4a6a8a,44,5.1,4,{rough:.8});
+  box(.6,5,12,0x5a7a9a,44,2.5,-6); box(.6,5,12,0x5a7a9a,44,2.5,14,{collide:false});
+  box(4,.15,3,0x8a5a2a,44,.08,4,{collide:false,shadow:false}); // gym floor marking patch
+  // library corner (small room, NW of main building)
+  box(.5,2.8,10,0x8faccf,-24,1.4,-20); box(10,2.8,.5,0x8faccf,-19,1.4,-25);
+  box(1.4,2,.4,0x3a2a1a,-22,1,-23,{rough:.8}); box(1.4,2,.4,0x3a2a1a,-20,1,-23,{rough:.8}); // shelves
   // flagpole with flag
-  box(.15,7,.15,0xaaaaaa,-18,3.5,18,{rough:.4,metal:.7});
-  box(1.2,.8,.08,0xcc3a3a,-17.4,6.6,18,{collide:false,shadow:false});
-  // outdoor goal posts (H-frame)
-  box(.15,2.2,.15,0xffffff,18,1.1,-16,{rough:.5}); box(.15,2.2,.15,0xffffff,18,1.1,-12,{rough:.5});
-  box(.15,.15,4.2,0xffffff,18,2.15,-14,{collide:false,rough:.5});
+  box(.15,7,.15,0xaaaaaa,-30,3.5,26,{rough:.4,metal:.7});
+  box(1.2,.8,.08,0xcc3a3a,-29.4,6.6,26,{collide:false,shadow:false});
+  // outdoor goal posts (H-frame) x2 (both ends of the field)
+  box(.15,2.2,.15,0xffffff,20,1.1,30,{rough:.5}); box(.15,2.2,.15,0xffffff,20,1.1,26,{rough:.5});
+  box(.15,.15,4.2,0xffffff,20,2.15,28,{collide:false,rough:.5});
+  box(.15,2.2,.15,0xffffff,-20,1.1,30,{rough:.5}); box(.15,2.2,.15,0xffffff,-20,1.1,26,{rough:.5});
+  box(.15,.15,4.2,0xffffff,-20,2.15,28,{collide:false,rough:.5});
   // lockers row
-  for(var lk=0;lk<6;lk++){ box(.7,2,.5,lk%2===0?0x3a5aaa:0xaa3a3a,-19+lk*0.85,1,-3,{rough:.4,metal:.4}); }
-  // bike rack
-  for(var bk=0;bk<3;bk++){ box(.1,.6,1.4,0x555,10+bk*0.6,.3,6,{rough:.5,metal:.6}); }
-  // bleachers (stepped)
-  for(var bl=0;bl<4;bl++){ box(10,.5,1.2,0x8a8a8a,-8,.3+bl*.6,16+bl*1.1,{rough:.9}); }
-  for(var sp=0;sp<10;sp++){
+  for(var lk=0;lk<8;lk++){ box(.7,2,.5,lk%2===0?0x3a5aaa:0xaa3a3a,-27+lk*0.85,1,4,{rough:.4,metal:.4}); }
+  // bike rack + benches
+  for(var bk=0;bk<4;bk++){ box(.1,.6,1.4,0x555,14+bk*0.6,.3,-20,{rough:.5,metal:.6}); }
+  box(2.4,.5,.6,0x6a4a2a,0,.25,-16,{rough:.8}); box(2.4,.5,.6,0x6a4a2a,10,.25,-16,{rough:.8});
+  // bleachers (stepped, both sides of the field)
+  for(var bl=0;bl<5;bl++){ box(14,.5,1.2,0x8a8a8a,-6,.3+bl*.6,26+bl*1.1,{rough:.9}); }
+  for(var bl2=0;bl2<5;bl2++){ box(14,.5,1.2,0x8a8a8a,-6,.3+bl2*.6,-32-bl2*1.1,{rough:.9}); }
+  // courtyard trees
+  [[-30,-4],[-30,4],[30,-24],[36,-30]].forEach(function(p){
+    box(.5,3,.5,0x6b4a2c,p[0],1.5,p[1],{rough:1});
+    box(2.4,2,2.4,0x3a6a34,p[0],3.6,p[1],{rough:1,collide:false});
+  });
+  for(var sp=0;sp<14;sp++){
     var sx=(mapRng()-.5)*(H*1.9), sz=(mapRng()-.5)*(H*1.9);
     if(nearAnySpawn(sx,sz)) continue;
     box(1+mapRng(),1.4+mapRng(),1+mapRng(),0x556b7a,sx,.9,sz,{rough:.9});
@@ -1321,76 +1388,99 @@ function buildSchool(){
   scene.background = new THREE.Color(0xbcd2e6);
 }
 function buildCity(){
-  var H=32;
+  var H=40;
   addSpawns(H);
   buildSky(0x9fd0e8,0xf5cf9e);
-  buildGround(70,0x5c5f67,0x555860);
-  box(60,.4,60,0x6a6d75,0,.2,0,{collide:false,shadow:false});
+  buildGround(H*2+8,0x5c5f67,0x555860);
+  box(H*2-4,.4,H*2-4,0x6a6d75,0,.2,0,{collide:false,shadow:false});
   addPerimeterWalls(H,0x4a4d55,2.2,{rough:.85});
   var buildC=[0x777b85,0x8a8f99,0x63666e,0x9aa0aa];
   var winColors=[0xfff2b0,0x9fd9ff];
-  var gridPositions=[[-16,-16],[-16,0],[-16,16],[0,-16],[0,16],[16,-16],[16,0],[16,16],[8,-6],[-8,6],[6,8],[-6,-8]];
+  var gridPositions=[[-20,-20],[-20,-6],[-20,10],[-20,26],[-6,-24],[-6,-8],[-6,26],
+    [8,-24],[8,-8],[8,26],[22,-20],[22,-6],[22,10],[22,26],[10,10],[-8,8]];
   gridPositions.forEach(function(p,i){
     if(nearAnySpawn(p[0],p[1],9)) return; // never block a spawn area with a building
-    var h = 4+mapRng()*10;
+    if(Math.abs(p[0])<9 && Math.abs(p[1])<9) return; // keep the central plaza clear
+    var h = 4+mapRng()*14;
     var w1 = 6+mapRng()*3, d1 = 6+mapRng()*3;
     box(w1,h,d1,buildC[i%buildC.length],p[0],h/2,p[1]);
-    // emissive window strips on two faces
     var wc = winColors[i%2];
-    box(w1*.7,.35,.06,0x222,p[0],h*.35,p[1]+d1/2+0.03,{collide:false,shadow:false,emissive:wc,emissiveIntensity:.9,rough:.3});
-    box(w1*.7,.35,.06,0x222,p[0],h*.68,p[1]+d1/2+0.03,{collide:false,shadow:false,emissive:wc,emissiveIntensity:.9,rough:.3});
-    // rooftop AC unit + antenna
+    box(w1*.7,.35,.06,0x222,p[0],h*.3,p[1]+d1/2+0.03,{collide:false,shadow:false,emissive:wc,emissiveIntensity:.9,rough:.3});
+    box(w1*.7,.35,.06,0x222,p[0],h*.55,p[1]+d1/2+0.03,{collide:false,shadow:false,emissive:wc,emissiveIntensity:.9,rough:.3});
+    box(w1*.7,.35,.06,0x222,p[0],h*.8,p[1]+d1/2+0.03,{collide:false,shadow:false,emissive:wc,emissiveIntensity:.9,rough:.3});
     box(.8,.5,.8,0x444,p[0]+w1*.25,h+.25,p[1],{rough:.6,metal:.5,collide:false});
     box(.06,1.4,.06,0x222,p[0]-w1*.2,h+.7,p[1]-d1*.2,{rough:.3,metal:.8,collide:false});
   });
+  // one tall landmark skyscraper
+  box(11,30,11,0x8a8f99,0,15,0,{collide:false}); // placeholder skipped (kept plaza clear) — landmark placed off-center instead
+  box(9,26,9,0x9aa0aa,-30,13,30);
+  box(6.3,.35,.06,0xfff2b0,-30,20,30+4.53,{collide:false,shadow:false,emissive:0xfff2b0,emissiveIntensity:1,rough:.3});
+  // central plaza with fountain + benches
+  box(6,.3,6,0x888,0,.15,0,{rough:.7});
+  box(3.2,.5,3.2,0x3a6a9a,0,.4,0,{rough:.2,metal:.3});
+  glowSprite(0,1,0,2.4,'rgba(140,200,255,0.5)','rgba(140,200,255,0)');
+  box(2,.5,.5,0x556,-5,.25,3,{rough:.8}); box(2,.5,.5,0x556,5,.25,-3,{rough:.8});
   // streetlights at intersections
-  addStreetlight(-10,-10,4.2); addStreetlight(10,10,4.2); addStreetlight(-10,10,4.2); addStreetlight(10,-10,4.2);
+  addStreetlight(-13,-13,4.2); addStreetlight(13,13,4.2); addStreetlight(-13,13,4.2); addStreetlight(13,-13,4.2);
+  addStreetlight(-13,0,4.2); addStreetlight(13,0,4.2);
   // street cover objects / vehicles (kept clear of spawn zones)
-  for(var i2=0;i2<8;i2++){
-    var sx2=(mapRng()-.5)*(H*1.75), sz2=(mapRng()-.5)*(H*1.75);
+  for(var i2=0;i2<12;i2++){
+    var sx2=(mapRng()-.5)*(H*1.8), sz2=(mapRng()-.5)*(H*1.8);
     if(nearAnySpawn(sx2,sz2)) continue;
     var ss=1.6+mapRng()*.6; box(ss,ss*.9,ss,0x334,sx2,ss*.5,sz2,{rough:.9});
   }
-  box(4,1.4,2,0x3a5a3a,-4,.7,4); box(1.6,.9,1.6,0x1a1a1a,-4,1.55,4,{collide:false,rough:.3}); // car + roof detail
+  box(4,1.4,2,0x3a5a3a,-4,.7,4); box(1.6,.9,1.6,0x1a1a1a,-4,1.55,4,{collide:false,rough:.3});
   box(4,1.4,2,0xaa3a3a,6,.7,-3); box(1.6,.9,1.6,0x1a1a1a,6,1.55,-3,{collide:false,rough:.3});
+  box(4,1.4,2,0x3a3a6a,-16,.7,18); box(1.6,.9,1.6,0x1a1a1a,-16,1.55,18,{collide:false,rough:.3});
   box(1.2,1.1,1.2,0x2a2a2a,-14,.55,14,{rough:.9}); // dumpster
+  box(1.2,1.1,1.2,0x2a2a2a,18,.55,-16,{rough:.9});
   scene.background = new THREE.Color(0x93a3ad);
 }
 function buildForest(){
-  var H=32;
+  var H=40;
   addSpawns(H);
   buildSky(0x8fc7e8,0xcbe8b8);
-  buildGround(70,0x527a3f,0x4a6a3a);
-  box(60,.4,60,0x557a44,0,.2,0,{collide:false,shadow:false});
+  buildGround(H*2+8,0x527a3f,0x4a6a3a);
+  box(H*2-4,.4,H*2-4,0x557a44,0,.2,0,{collide:false,shadow:false});
   addPerimeterWalls(H,0x3a5a2c,2.4,{rough:1});
-  for(var i=0;i<30;i++){
-    var x=(mapRng()-.5)*(H*1.8), z=(mapRng()-.5)*(H*1.8);
+  for(var i=0;i<44;i++){
+    var x=(mapRng()-.5)*(H*1.85), z=(mapRng()-.5)*(H*1.85);
     if(Math.abs(x)<4&&Math.abs(z)<4) continue;
     if(nearAnySpawn(x,z)) continue;
-    var h=3+mapRng()*3;
+    var h=3+mapRng()*3.4;
     box(.8,h,.8,0x6b4a2c,x,h/2,z,{rough:1});
     var leafColor = mapRng()>0.5 ? 0x2e5a2a : 0x3a6a34;
     box(2.2+mapRng(),1.7,2.2+mapRng(),leafColor,x,h+.9,z,{rough:1,collide:false});
     box(1.5+mapRng()*.6,1.1,1.5+mapRng()*.6,leafColor,x,h+1.7,z,{rough:1,collide:false,shadow:false});
   }
   // rocks
-  for(var r=0;r<9;r++){
-    var rx=(mapRng()-.5)*(H*1.7), rz=(mapRng()-.5)*(H*1.7);
+  for(var r=0;r<14;r++){
+    var rx=(mapRng()-.5)*(H*1.75), rz=(mapRng()-.5)*(H*1.75);
     if(nearAnySpawn(rx,rz)) continue;
     box(1+mapRng(),.7+mapRng()*.6,1+mapRng(),0x8a8a82,rx,.5,rz,{rough:1});
   }
-  // stream
-  box(6,.05,60,0x3f7fae,10,.06,0,{collide:false,shadow:false,rough:.2,metal:.3});
+  // stream + pond
+  box(6,.05,H*2,0x3f7fae,10,.06,0,{collide:false,shadow:false,rough:.2,metal:.3});
+  box(11,.06,9,0x3f7fae,10,.07,-26,{collide:false,shadow:false,rough:.2,metal:.3});
   // bridge over stream
   box(10,.5,3,0x8a6a44,10,1.2,0,{rough:.9});
   box(.15,.8,3,0x6b4a2c,5.2,1.6,0,{collide:false,rough:.9}); box(.15,.8,3,0x6b4a2c,14.8,1.6,0,{collide:false,rough:.9});
+  // watchtower (elevated sniping platform)
+  box(.5,6,.5,0x5a3d22,-24,3,20,{rough:1}); box(.5,6,.5,0x5a3d22,-20,3,20,{rough:1});
+  box(.5,6,.5,0x5a3d22,-24,3,24,{rough:1}); box(.5,6,.5,0x5a3d22,-20,3,24,{rough:1});
+  box(5,.5,5,0x6b4a2c,-22,6.2,22,{rough:.9}); // platform
+  box(5,.1,.3,0x6b4a2c,-22,7.4,19.9,{collide:false,rough:.9}); // low rail hint (visual only)
+  for(var lad=0;lad<6;lad++){ box(.8,.1,.15,0x4a3218,-22,.6+lad,20,{collide:false,rough:.9}); }
   // campfire
   box(1.6,.3,1.6,0x555,-14,.15,10,{rough:1});
   glowSprite(-14,.7,10,3,'rgba(255,150,60,0.9)','rgba(255,120,40,0)');
-  // fallen log
+  box(2.6,1.6,.1,0x3a5a3a,-16,.8,12,{collide:false,rough:1,rotY:.5}); // tent side panel
+  box(2.6,1.6,.1,0x3a5a3a,-16,.8,12,{collide:false,rough:1,rotY:-.5});
+  // fallen logs
   box(4,.6,.6,0x5a3d22,6,.3,-14,{rough:1,rotY:.6});
-  for(var sc=0;sc<6;sc++){
-    var scx=(mapRng()-.5)*(H*1.7), scz=(mapRng()-.5)*(H*1.7);
+  box(5,.6,.6,0x4a3218,22,.3,8,{rough:1,rotY:-.3});
+  for(var sc=0;sc<10;sc++){
+    var scx=(mapRng()-.5)*(H*1.75), scz=(mapRng()-.5)*(H*1.75);
     if(nearAnySpawn(scx,scz)) continue;
     var s=1.4+mapRng();
     box(s,s*.8,s,0x777,scx,s*.5,scz,{rough:.9});
@@ -1451,25 +1541,42 @@ var WEAPON_MODEL_PATH = {
   assault:'models/ak-47.glb', smg:'models/ak-47.glb', lmg:'models/ak-47.glb', shotgun:'models/ak-47.glb',
   sniper:'models/hk-g28-sniper.glb', pistol:'models/colt-python.glb'
 };
+// Correction quaternions computed from each model's actual geometry (PCA on real vertex
+// data, walked through the full node hierarchy) so the barrel truly points into the screen
+// (-Z) and "up" is +Y, instead of trusting the source file's arbitrary display orientation.
+// If a weapon ever renders upside-down, set its flipUp to true — that's the only knob needed.
+var WEAPON_MODEL_FIX = {
+  'models/ak-47.glb':          { quat:[-0.035794, 0.705225, -0.027425, 0.707548], flipUp:false, targetLen:0.60, dist:1.05, right:0.30, down:0.27 },
+  'models/hk-g28-sniper.glb':  { quat:[-0.018029, -0.705133, 0.020743, 0.708542], flipUp:false, targetLen:0.80, dist:1.35, right:0.30, down:0.30 },
+  'models/colt-python.glb':    { quat:[-0.095713, 0.016179, 0.168883, 0.980845], flipUp:false, targetLen:0.30, dist:0.80, right:0.30, down:0.30 }
+};
 var gltfLoader = (typeof THREE!=='undefined' && THREE.GLTFLoader) ? new THREE.GLTFLoader() : null;
 var modelCache = {}; // path -> loaded THREE.Group (template, cloned per use)
 var weaponLoadGen = 0;
 function normalizeModelForView(model, weaponId){
-  // Different asset packs use very different native scales/pivots — auto-fit each
-  // model to a consistent first-person size/position rather than hand-tuning each one.
+  var path = WEAPON_MODEL_PATH[weaponId];
+  var fix = WEAPON_MODEL_FIX[path] || { quat:[0,0,0,1], flipUp:false, targetLen:0.6, dist:1.0, right:0.28, down:0.26 };
+
+  model.quaternion.set(fix.quat[0], fix.quat[1], fix.quat[2], fix.quat[3]);
+  if(fix.flipUp){
+    var flip = new THREE.Quaternion(); flip.setFromAxisAngle(new THREE.Vector3(0,0,1), Math.PI);
+    model.quaternion.multiply(flip);
+  }
+  model.updateMatrixWorld(true); // force the box below to reflect the rotation we just set
+
   var box = new THREE.Box3().setFromObject(model);
   var size = box.getSize(new THREE.Vector3());
   var center = box.getCenter(new THREE.Vector3());
   var maxDim = Math.max(size.x,size.y,size.z) || 1;
-  var targetLen = weaponId==='pistol' ? 0.34 : (weaponId==='sniper' ? 0.85 : 0.62);
-  var scale = targetLen/maxDim;
-  model.scale.setScalar(scale);
-  // recenter so the model's own bounding-box center sits at local origin, then offset into FPS view position
-  model.position.set(-center.x*scale, -center.y*scale, -center.z*scale);
+  var scale = fix.targetLen/maxDim;
+
   var wrapper = new THREE.Group();
   wrapper.add(model);
-  wrapper.position.set(0.26, weaponId==='pistol'?-0.26:-0.24, weaponId==='sniper'?-0.5:-0.42);
-  wrapper.rotation.y = Math.PI*0.06;
+  wrapper.scale.setScalar(scale);
+  // recenter so the model's own (rotated) bounding-box center sits at the wrapper's origin
+  model.position.set(-center.x, -center.y, -center.z);
+  wrapper.position.set(fix.right, -fix.down, -fix.dist);
+  wrapper.rotation.y = Math.PI*0.05;
   model.traverse(function(o){ if(o.isMesh){ o.castShadow=false; o.receiveShadow=false; } });
   return wrapper;
 }
@@ -1497,8 +1604,9 @@ function buildWeaponView(){
     weaponGroup.remove(placeholder);
     var wrapped = normalizeModelForView(scene3d, w.id);
     weaponGroup.add(wrapped);
-    // keep the muzzle flash roughly at the model's muzzle end
-    muzzleFlash.position.set(.26, w.id==='pistol'?-0.26:-0.24, (w.id==='sniper'?-0.5:-0.42) - (w.id==='sniper'?0.55:0.4));
+    // keep the muzzle flash roughly at the model's muzzle tip
+    var mf = WEAPON_MODEL_FIX[path] || {right:0.28,down:0.26,dist:1.0,targetLen:0.6};
+    muzzleFlash.position.set(mf.right, -mf.down, -(mf.dist + mf.targetLen*0.55));
   }
   if(modelCache[path]){
     onModelReady(modelCache[path].clone(true));
@@ -2473,6 +2581,10 @@ function boot(){
     }catch(e){}
     document.removeEventListener('touchend', tryLock);
   }, {once:true});
+  if('serviceWorker' in navigator){
+    // file:// and some sandboxed preview contexts don't support SW registration — fail silently there
+    navigator.serviceWorker.register('./service-worker.js').catch(function(){});
+  }
 }
 if(document.readyState==='complete' || document.readyState==='interactive'){ setTimeout(boot,50); }
 else document.addEventListener('DOMContentLoaded', boot);
